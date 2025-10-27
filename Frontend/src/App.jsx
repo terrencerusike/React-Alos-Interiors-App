@@ -16,7 +16,7 @@ import AppProduct from "./Pages/AddProductpage";
 import AllProducts from "./Pages/AllProducts";
 import Shop from "./Pages/Shop"; 
 import PrivateRoute from "./components/PrivateRoute";
-import banner from"./components/Assets/banner_new_arrivals.webp"
+
 
 
 
@@ -58,7 +58,7 @@ const addToCart = (product) => {
           <Route path="/AllProducts/" element={<AllProducts />} />
           <Route
            path="/Shop/category/:categoryName"
-            element={<Shop  />}
+            element={<Shop  /> }
           />
           
           <Route path="/Contact/" element={<Contactus />}  />

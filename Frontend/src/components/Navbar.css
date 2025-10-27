@@ -17,13 +17,14 @@ nav {
   align-items: center;
   justify-content: space-between;
   max-width: 1440px;
-  height: 57px;
   margin: 0 auto;
-  padding: 53px 70px
+  padding: 12px 70px;
+  box-shadow: 0 3px 3px -3px #0000001a;
+  -webkit-box-shadow: 0 3px 3px -3px rgba(0, 0, 0, .1);
 }
 
 .nav_left img {
-  height: 61px;
+  height: 65px;
   margin-top: 8px;
 }
 
@@ -497,6 +498,7 @@ nav {
   width: 24px;
   height: 24px;
   cursor: pointer;
+  margin-top: 9px;
 }
 
 .nav-cart-count {

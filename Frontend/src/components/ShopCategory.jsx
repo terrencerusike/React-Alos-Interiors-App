@@ -5,6 +5,7 @@ import dropdown_icon from "./Assets/dropdown_icon.png";
 import "./ShopCategory.css";
 import Item from "./Item";
 
+
 function ShopCategory(props) {
   const { categoryName } = useParams(); 
   const [products, setProducts] = useState([]);
