@@ -1,11 +1,14 @@
 import dropdown_icon from "./Assets/dropdown_icon.png";
 import { useProducts } from "./ShopContextShopContext";
+import React, { useState } from "react";
 import "./ShopCategory.css";
+import Item from "./Item";
 
 
 function AllProducts(props) {
     const { products} = useProducts();
     const [loading, useloading] = useState(false)
+
 
     
 
