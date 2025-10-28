@@ -1,39 +1,42 @@
 const express = require("express");
 const app = express();
-const mongoDB =  require("mongoose")
+const mongoose = require("mongoose");
 const userRoute = require("./routers/routes");
-const cors = require("cors")
+const cors = require("cors");
+const path = require("path");
 
-
-
-// Load .env first
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+// Load .env
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
 }
 
 // Connect to MongoDB
-mongoDB.connect(process.env.MONGO_URL)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.log("❌ MongoDB connection error:", err));
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/", userRoute);
-app.use("/uploads", express.static("uploads"));
-const path = require("path");
 
-
+// API routes (keep above React routes)
+app.use("/api", userRoute);
 
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-//route
-app.get("/", (req, res) => {
-  res.send("this is working");
+// Serve React frontend
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+// React routing: serve index.html for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
 
-const PORT = 2000;
+// Port for Render
+const PORT = process.env.PORT || 2000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
