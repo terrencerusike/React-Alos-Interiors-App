@@ -22,8 +22,8 @@ export function ProductProvider({ children }) {
       try {
         const [productsRes, categoriesRes] = await Promise.all([
        
-          axios.get("http://localhost:2000/productget"),
-          axios.get("http://localhost:2000/categories") 
+          axios.get(`${API_BASE_URL}/productget`),
+          axios.get(`${API_BASE_URL}/categories`) 
         ]);
 
         setProducts(productsRes.data);
