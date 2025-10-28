@@ -31,9 +31,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // React routing: serve index.html for all other routes
-app.get("/", (req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
+
 
 // Port for Render
 const PORT = process.env.PORT || 2000;
