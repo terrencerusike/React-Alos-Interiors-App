@@ -7,10 +7,8 @@ import Item from "./Item";
 
 function AllProducts(props) {
     const { products} = useProducts();
-    const [loading, useloading] = useState(false)
-
-
-    
+    const [loading, useloading] = useState(false);
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 
   return (
@@ -34,7 +32,7 @@ function AllProducts(props) {
         ) : (
           products.map((prod) => {
             const imageUrl = prod.imageUrl
-              ? `http://localhost:2000/${prod.imageUrl.replace(/\\/g, "/")}`
+              ? `${API_BASE_URL}/${prod.imageUrl.replace(/\\/g, "/")}`
               : "http://localhost:3000/static/media/banner_mens.e4aa52c32b71b7cfa22d.webp"; 
             return (
               <Item
