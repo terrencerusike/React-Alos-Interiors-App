@@ -8,20 +8,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const middlewareprotect = require("../middleware/middleware")
-const cors = require("cors");
 
-
-
-// CORS configuration
-app.use(cors({
-  origin: [
-    "https://react-alos-interiors-app-1.onrender.com",
-    "http://localhost:3000"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
 
 
 
