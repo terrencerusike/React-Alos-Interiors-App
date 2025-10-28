@@ -5,7 +5,7 @@ import "./LoginSignup.css";
 function Catadd() {
   const [category, setCategory] = useState('');
   const [image, setImage] = useState(null);
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:10000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ function Catadd() {
 
       // Reset form fields
       setCategory('');
-      setImage('');
+      setImage(null);
 
 
     } catch (err) {
