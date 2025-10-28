@@ -6,7 +6,7 @@ const ProductContext = createContext();
 
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]); // ✅ Add categories
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cart, setCart] = useState(() => {
@@ -47,7 +47,7 @@ export function ProductProvider({ children }) {
     const token = localStorage.getItem("token"); 
     if (!token) return; 
     try {
-      const res = await axios.get("http://localhost:2000/cart", {
+      const res = await axios.get(`${API_BASE_URL}/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -94,7 +94,7 @@ export function ProductProvider({ children }) {
 
 async function deleteBn(id) {
   try {
-    const response = await axios.delete(`http://localhost:2000/product/${id}`);
+    const response = await axios.delete(`${API_BASE_URL}/product/${id}`);
 
     if (response.status === 200) {
       setProducts(prev => prev.filter(p => p._id !== id));
@@ -110,7 +110,7 @@ async function deleteBn(id) {
 
 async function getProductsByCategory(categoryName, setProducts) {
   try {
-    const response = await axios.get(`http://localhost:2000/product/category/${categoryName}`);
+    const response = await axios.get(`${API_BASE_URL}/product/category/${categoryName}`);
     setProducts(response.data);
   } catch (err) {
     console.error(err);
