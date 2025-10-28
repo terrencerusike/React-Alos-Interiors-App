@@ -9,9 +9,10 @@ export function ProductProvider({ children }) {
   const [categories, setCategories] = useState([]); // ✅ Add categories
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
- const [cart, setCart] = useState(() => {
+  const [cart, setCart] = useState(() => {
   const stored = localStorage.getItem("cart");
   return stored ? JSON.parse(stored) : [];
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 });
 
 
