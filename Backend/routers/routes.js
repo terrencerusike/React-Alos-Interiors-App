@@ -75,15 +75,15 @@ router.get("/cart", middlewareprotect, (req, res)=>{
 router.post("/add", upload.single("image"), async (req, res) => {
   try {
     const { name } = req.body;
-    const image = req.file;
+    const image = req.file ? req.file.filename : null; // optional image
 
-     if (!name || !image) {
-      return res.status(400).json({ message: "Missing name or image" });
+    if (!name) {
+      return res.status(400).json({ message: "Missing name" });
     }
 
     const saveCat = await category.create({ 
-      name: req.body.name, 
-      image: image.filename 
+      name,
+      ImageUrl: image // store filename or null
     });
 
     if (!saveCat) {
