@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-// CORS configuration
+// CORS configuration - PUT THIS IN YOUR MAIN SERVER FILE
 app.use(cors({
   origin: [
     "https://react-alos-interiors-app-1.onrender.com",
