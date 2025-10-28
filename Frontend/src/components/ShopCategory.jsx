@@ -55,7 +55,7 @@ function ShopCategory(props) {
         ) : (
           products.map((prod) => {
             const imageUrl = prod.imageUrl
-              ? `http://localhost:2000/${prod.imageUrl.replace(/\\/g, "/")}`
+              ? `${API_BASE_URL}/${prod.imageUrl.replace(/\\/g, "/")}`
               : "http://localhost:3000/static/media/banner_mens.e4aa52c32b71b7cfa22d.webp"; 
             return (
               <Item
