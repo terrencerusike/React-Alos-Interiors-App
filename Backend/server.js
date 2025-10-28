@@ -31,14 +31,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", userRoute);
 console.log("✅ Routes mounted at /");
 
-// ✅ FIXED: Serve React frontend static files
-// Use absolute path to ensure we find the build folder
-app.use(express.static(path.join(__dirname, "../Frontend/build")));
-
-// ✅ FIXED: React routing - serve index.html for all non-API routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/build", "index.html"));
+  res.send("✅ Backend API is running!");
 });
+
 
 // Port for Render
 const PORT = process.env.PORT || 2000;
