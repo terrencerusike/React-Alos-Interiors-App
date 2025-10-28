@@ -5,6 +5,7 @@ import { useProducts } from "./ShopContextShopContext";
 
 function IntroSection_products() {
   const { products } = useProducts();
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   const featuredProducts = products.slice(0, 4);
 
@@ -36,7 +37,7 @@ function IntroSection_products() {
                   <img
                     src={
                       product.imageUrl
-                        ? `http://localhost:2000/${product.imageUrl.replace(/\\/g, "/")}`
+                        ? `${API_BASE_URL}/${product.imageUrl.replace(/\\/g, "/")}`
                         : "fallback.png"
                     }
                     alt={product.productname}

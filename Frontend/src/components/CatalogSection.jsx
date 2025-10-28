@@ -7,6 +7,7 @@ function CatalogSection() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     getData();
@@ -14,7 +15,7 @@ function CatalogSection() {
 
   const getData = async () => {
     try {
-      const response = await axios.get("http://localhost:2000/categories");
+      const response = await axios.get(`${API_BASE_URL}/categories`);
       setCategories(response.data);
     } catch (err) {
       setError("Failed to load categories. Please try again.");

@@ -8,6 +8,7 @@ function LoginSignupform() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   const navigate = useNavigate();
 
@@ -16,7 +17,7 @@ function LoginSignupform() {
   const handleFn = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:2000/signup", {
+      const response = await axios.post(`${API_BASE_URL}/signup`, {
         name,
         email,
         password,

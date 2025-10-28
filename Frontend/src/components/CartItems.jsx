@@ -8,6 +8,7 @@ import axios from "axios";
 const CartItems = () => {
   const { cart, setCart, removeFromCart } = useProducts(); // we will setCart after fetching
   const [showOrderForm, setShowOrderForm] = useState(false);
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   // Fetch cart from backend when component mounts
   useEffect(() => {
@@ -16,7 +17,7 @@ const CartItems = () => {
       if (!token) return; // user not logged in
 
       try {
-        const res = await axios.get("http://localhost:2000/cart", {
+        const res = await axios.get(`${API_BASE_URL}/cart`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

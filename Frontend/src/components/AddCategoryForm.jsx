@@ -5,6 +5,7 @@ import "./LoginSignup.css";
 function Catadd() {
   const [category, setCategory] = useState('');
   const [image, setImage] = useState(null);
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +15,7 @@ function Catadd() {
     formData.append("image", image);
 
     try {
-      const response = await axios.post("http://localhost:2000/add", formData, {
+      const response = await axios.post(`${API_BASE_URL}/add`, formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }

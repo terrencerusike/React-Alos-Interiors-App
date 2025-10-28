@@ -7,6 +7,7 @@ import "./LoginSignup.css";
 function LoginSignupform() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   const navigate = useNavigate();
 
@@ -14,7 +15,7 @@ function LoginSignupform() {
   const logIn = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:2000/login", {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
        email,
         password,
       });

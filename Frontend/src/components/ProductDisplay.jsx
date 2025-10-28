@@ -11,6 +11,7 @@ const ProductDisplay = () => {
 const { addToCart, deleteBn } = useProducts();
 const { products, loading, error } = useProducts();
 const { id } = useParams();
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 
 
@@ -24,8 +25,8 @@ const { id } = useParams();
 
  // Build images array, always with full URLs
 const images = product.images && product.images.length > 0
-  ? product.images.map(img => `http://localhost:2000/${img.replace(/\\/g, "/")}`)
-  : [`http://localhost:2000/${(product.imageUrl || "fallback.png").replace(/\\/g, "/")}`];
+  ? product.images.map(img => `${API_BASE_URL}/${img.replace(/\\/g, "/")}`)
+  : [`${API_BASE_URL}/${(product.imageUrl || "fallback.png").replace(/\\/g, "/")}`];
 
   return (
     <div className="productdisplay">

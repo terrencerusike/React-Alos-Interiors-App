@@ -11,11 +11,12 @@ function AddProduct() {
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await axios.get('http://localhost:2000/categories'); 
+      const response = await axios.get(`${API_BASE_URL}/categories`); 
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -44,7 +45,7 @@ const productFn = async (e) => {
   if (image) formData.append('image', image);
 
   try {
-    const response = await axios.post('http://localhost:2000/productpost', formData);
+    const response = await axios.post(`${API_BASE_URL}/productpost`, formData);
     toast.success("Product submitted successfully!");
   } catch (err) {
     console.error("Error submitting product:", err);

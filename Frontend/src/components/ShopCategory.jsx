@@ -10,11 +10,12 @@ function ShopCategory(props) {
   const { categoryName } = useParams(); 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await axios.get("http://localhost:2000/productget");
+        const response = await axios.get(`${API_BASE_URL}/productget`);
         console.log(response)
 
         
