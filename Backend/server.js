@@ -28,11 +28,11 @@ app.use("/api", userRoute);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Serve React frontend
-app.use(express.static(path.join(__dirname, "../Frontend/build")));
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // React routing: serve index.html for all other routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/build", "index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
 
 // Port for Render
