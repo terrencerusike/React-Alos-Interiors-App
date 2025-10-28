@@ -32,11 +32,11 @@ app.use("/api", userRoute);
 
 // ✅ FIXED: Serve React frontend static files
 // Use absolute path to ensure we find the build folder
-app.use(express.static(path.join(__dirname, "frontend/build")));
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // ✅ FIXED: React routing - serve index.html for all non-API routes
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend/build", "index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
 
 // Port for Render
