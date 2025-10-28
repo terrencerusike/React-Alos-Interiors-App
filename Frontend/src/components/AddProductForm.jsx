@@ -16,7 +16,7 @@ function AddProduct() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-      const response = await axios.get(`${API_BASE_URL}/categories`); 
+      const response = await axios.get(`https://alos-interiors-web-backend.onrender.com/categories`); 
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -45,7 +45,7 @@ const productFn = async (e) => {
   if (image) formData.append('image', image);
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/productpost`, formData);
+    const response = await axios.post(`${REACT_APP_API_URL}/productpost`, formData);
     toast.success("Product submitted successfully!");
   } catch (err) {
     console.error("Error submitting product:", err);
