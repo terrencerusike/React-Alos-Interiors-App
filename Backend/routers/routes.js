@@ -159,18 +159,23 @@ router.get("/product/category/:categoryName", async (req, res) => {
 
 //ADD PRODUCT ROUTER
 
-router.post("/productpost", async (req, res) => {
-  try {
-    const { productname, description, price, category, imageUrl } = req.body;
 
-    if (!category) return res.status(400).json({ message: "Category is required" });
+router.post("/productpost", upload.single("image"), async (req, res) => {
+  try {
+    // req.body is now defined
+    const { productname, description, price, category } = req.body;
+    const image = req.file ? req.file.filename : null; 
+
+    if (!category || !productname || !description || !price) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const addProduct = await productDatabase.create({
       productname,
       description,
       price,
       category,
-      imageUrl: imageUrl || null
+      imageUrl: image
     });
 
     res.status(200).json(addProduct);
@@ -179,7 +184,6 @@ router.post("/productpost", async (req, res) => {
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
-
 
 
 //Delete PRODUCT

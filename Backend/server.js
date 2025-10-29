@@ -1,9 +1,30 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const userRoute = require("./routers/routes");
 const cors = require("cors");
 const path = require("path");
+
+
+
+// CORS configuration - PUT THIS IN YOUR MAIN SERVER FILE
+app.use(cors({
+  origin: [
+    "https://react-alos-interiors-app-1.onrender.com",
+    "http://localhost:3000"
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const userRoute = require("./routers/routes");
+
 
 // Load .env
 if (process.env.NODE_ENV !== "production") {
@@ -19,23 +40,6 @@ mongoose
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.log("❌ MongoDB connection error:", err));
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-
-
-
-// CORS configuration - PUT THIS IN YOUR MAIN SERVER FILE
-app.use(cors({
-  origin: [
-    "https://react-alos-interiors-app-1.onrender.com",
-    "http://localhost:3000"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
 
 
 

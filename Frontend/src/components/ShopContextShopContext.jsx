@@ -12,9 +12,8 @@ export function ProductProvider({ children }) {
   const [cart, setCart] = useState(() => {
   const stored = localStorage.getItem("cart");
   return stored ? JSON.parse(stored) : [];
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
 });
-
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 
   // Fetch products & categories from Mongo
@@ -25,6 +24,7 @@ export function ProductProvider({ children }) {
        
           axios.get(`${API_BASE_URL}/productget`),
           axios.get(`${API_BASE_URL}/categories`) 
+        
         ]);
 
         setProducts(productsRes.data);
