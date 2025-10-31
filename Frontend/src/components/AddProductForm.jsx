@@ -11,7 +11,7 @@ function AddProduct() {
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:2000';
 
   useEffect(() => {
     async function fetchCategories() {
@@ -27,13 +27,13 @@ function AddProduct() {
     }
 
     fetchCategories();
-  }, []);
+  }, [API_BASE_URL]);
 
 const productFn = async (e) => {
   e.preventDefault();
 
-  if (!productname || !description || !price) {
-    toast.error("Please fill all fields");
+  if (!productname || !description || !price || !categoryId) {
+    toast.error("Please fill all fields and select a category");
     return;
   }
 
@@ -45,11 +45,18 @@ const productFn = async (e) => {
   if (image) formData.append('image', image);
 
   try {
-    const response = await axios.post(`https://alos-interiors-web-backend.onrender.com/productpost`, formData);
+    const response = await axios.post(`${API_BASE_URL}/productpost`, formData);
     toast.success("Product submitted successfully!");
+    // Reset form after successful submission
+    setProductname('');
+    setDescription('');
+    setPrice('');
+    setImage(null);
+    setCategoryId('');
   } catch (err) {
     console.error("Error submitting product:", err);
-    toast.error("Failed to submit product");
+    console.error("Error response:", err.response?.data);
+    toast.error(err.response?.data?.message || "Failed to submit product");
   }
 };
 
@@ -97,12 +104,14 @@ const productFn = async (e) => {
           id="category"
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
+          required
         >
+          <option value="">Select a category</option>
           {loadingCategories ? (
-            <option>Loading categories...</option>
+            <option disabled>Loading categories...</option>
           ) : (
             categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
+              <option key={cat._id} value={cat._id}>
                 {cat.name}
               </option>
             ))

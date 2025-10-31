@@ -6,15 +6,34 @@ const productDatabase = require("../models/productSchema");
 const hashED = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
-const middlewareprotect = require("../middleware/middleware")
+const path = require("path");
+const middlewareprotect = require("../middleware/middleware");
+
+// Body parsing middleware for JSON/urlencoded routes
+const jsonParser = express.json();
+const urlencodedParser = express.urlencoded({ extended: true });
+
+// Configure multer storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 
 
 
 //SIGN UP ROUTER
-router.post("/signup", async(req, res) => {
-  console.log("Signup body:", req.body);
+router.post("/signup", jsonParser, async(req, res) => {
   try{
     const passwordHashED = await hashED.hash(req.body.password, 10)
     const input = await userSchema.create({
@@ -35,7 +54,7 @@ router.post("/signup", async(req, res) => {
 
 
 //LOGIN ROUTER
-router.post("/login", async(req, res)=>{
+router.post("/login", jsonParser, async(req, res)=>{
   try{
    const{email, password} = req.body
  const getEmail = await userSchema.findOne({email})
@@ -158,24 +177,33 @@ router.get("/product/category/:categoryName", async (req, res) => {
 
 
 //ADD PRODUCT ROUTER
-
-router.post("/productpost", async (req, res) => {
+router.post("/productpost", upload.single("image"), async (req, res) => {
   try {
-    const { productname, description, price, category, imageUrl } = req.body;
+    const { productname, description, price, category } = req.body;
+    const image = req.file ? req.file.filename : null;
 
-    if (!category) return res.status(400).json({ message: "Category is required" });
+    if (!productname || !description || !price) {
+      return res.status(400).json({ 
+        message: "Missing required fields",
+        received: { productname, description, price, category }
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
 
     const addProduct = await productDatabase.create({
       productname,
       description,
       price,
       category,
-      imageUrl: imageUrl || null
+      imageUrl: image
     });
 
     res.status(200).json(addProduct);
   } catch (err) {
-    console.error(err);
+    console.error("Error creating product:", err);
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 });

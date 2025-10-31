@@ -20,8 +20,8 @@ mongoose
   .catch((err) => console.log("❌ MongoDB connection error:", err));
 
 // Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Remove global body parsing - let routes handle it individually
+// (multer needs raw request stream for multipart/form-data)
 
 
 
@@ -34,7 +34,7 @@ app.use(cors({
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"]
 }));
 
 
