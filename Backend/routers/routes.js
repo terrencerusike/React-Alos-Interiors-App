@@ -6,8 +6,52 @@ const productDatabase = require("../models/productSchema");
 const hashED = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
 const middlewareprotect = require("../middleware/middleware")
+
+
+
+// Configure multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Make sure this folder exists
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+// ADD PRODUCT ROUTE
+router.post("/productpost", upload.single("image"), async (req, res) => {
+  try {
+    console.log("req.body:", req.body);
+    console.log("req.file:", req.file);
+
+    const { productname, description, price, category } = req.body;
+
+    if (!productname || !description || !price || !category || !req.file) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const addProduct = await productDatabase.create({
+      productname,
+      description,
+      price: Number(price),
+      category,
+      image: req.file.filename,
+    });
+
+    console.log("Product saved:", addProduct);
+
+    res.status(200).json(addProduct);
+  } catch (err) {
+    console.error("ERROR in /productpost:", err);
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
+
 
 
 
@@ -98,20 +142,15 @@ router.post("/add", upload.single("image"), async (req, res) => {
 
 
 
-//GET CATEGORY ROUTER
+// GET CATEGORIES ROUTE (for dropdown)
+const categoryDatabase = require("../models/categorySchema");
 
 router.get("/categories", async (req, res) => {
   try {
-    const catList = await category.find();
-    console.log(catList);
-
-    if (!catList || catList.length === 0) {
-      return res.status(404).json({ message: "No categories found" });
-    }
-
-    return res.status(200).json(catList);
+    const categories = await categoryDatabase.find();
+    res.status(200).json(categories);
   } catch (err) {
-    return res.status(500).json({ message: `Server error: ${err.message}` });
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
 
@@ -157,33 +196,6 @@ router.get("/product/category/:categoryName", async (req, res) => {
 });
 
 
-//ADD PRODUCT ROUTER
-
-
-router.post("/productpost", upload.single("image"), async (req, res) => {
-  try {
-    // req.body is now defined
-    const { productname, description, price, category } = req.body;
-    const image = req.file ? req.file.filename : null; 
-
-    if (!category || !productname || !description || !price) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const addProduct = await productDatabase.create({
-      productname,
-      description,
-      price,
-      category,
-      imageUrl: image
-    });
-
-    res.status(200).json(addProduct);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error", error: err.message });
-  }
-});
 
 
 //Delete PRODUCT
