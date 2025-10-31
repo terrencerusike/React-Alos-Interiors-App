@@ -102,7 +102,7 @@ router.post("/add", upload.single("image"), async (req, res) => {
 
     const saveCat = await category.create({ 
       name,
-      ImageUrl: image // store filename or null
+      ImageUrl: image ? `uploads/${image}` : null
     });
 
     if (!saveCat) {
@@ -198,7 +198,7 @@ router.post("/productpost", upload.single("image"), async (req, res) => {
       description,
       price,
       category,
-      imageUrl: image
+      imageUrl: image ? `uploads/${image}` : null
     });
 
     res.status(200).json(addProduct);
