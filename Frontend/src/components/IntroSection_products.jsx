@@ -9,6 +9,15 @@ function IntroSection_products() {
 
   const featuredProducts = products.slice(0, 4);
 
+  // Helper function to get correct image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return "fallback.png";
+    // If already full URL (Cloudinary), use as-is
+    if (imageUrl.startsWith('http')) return imageUrl;
+    // Otherwise, construct with API base URL (for old uploads)
+    return `${API_BASE_URL}/${imageUrl.replace(/\\/g, "/")}`;
+  };
+
   return (
     <div>
       <div className="intro-section-products">
@@ -29,25 +38,19 @@ function IntroSection_products() {
           </div>
         </div>
         <div className="intro-section-products-right">
-          {featuredProducts.map((product) => {
-            return (
-              <Link to={`/product/${product._id}`} key={product._id}>
-                <div className="intro-section-products-right-item">
-                  <span>SAVE 20%</span>
-                  <img
-                    src={
-                      product.imageUrl
-                        ? `${API_BASE_URL}/${product.imageUrl.replace(/\\/g, "/")}`
-                        : "fallback.png"
-                    }
-                    alt={product.productname}
-                  />
-                  <p className="title">{product.productname}</p>
-                  <p className="price">R{product.price}</p>
-                </div>
-              </Link>
-            );
-          })}
+          {featuredProducts.map((product) => (
+            <Link to={`/product/${product._id}`} key={product._id}>
+              <div className="intro-section-products-right-item">
+                <span>SAVE 20%</span>
+                <img
+                  src={getImageUrl(product.imageUrl)}
+                  alt={product.productname}
+                />
+                <p className="title">{product.productname}</p>
+                <p className="price">R{product.price}</p>
+              </div>
+            </Link>
+          ))}
         </div>
 
         <Link to="#" className="intro-section-text">

@@ -3,249 +3,192 @@ const router = express.Router();
 const userSchema = require("../models/userSchema");
 const category = require("../models/categorySchema");
 const productDatabase = require("../models/productSchema");
-const hashED = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
 const middlewareprotect = require("../middleware/middleware");
 
-// Body parsing middleware for JSON/urlencoded routes
-const jsonParser = express.json();
-const urlencodedParser = express.urlencoded({ extended: true });
+// Load environment variables
+require("dotenv").config();
 
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure Cloudinary storage for Multer
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "alos-interiors-products",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [{ width: 1000, height: 1000, crop: "limit" }]
   }
 });
 
-const upload = multer({ 
-  storage: storage,
+const upload = multer({
+  storage,
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
+// =====================
+// USER ROUTES
+// =====================
 
-
-
-//SIGN UP ROUTER
-router.post("/signup", jsonParser, async(req, res) => {
-  try{
-    const passwordHashED = await hashED.hash(req.body.password, 10)
-    const input = await userSchema.create({
-      name:req.body.name, 
-      email:req.body.email,  
-      password: passwordHashED})
-    if(!input){
-   return  res.status(400).json({message: "Input not valid"})
-  
-      }
-      res.status(200).json(input)
-    
-
-  }catch(err){
-  return res.status(500).json({message: "Server Error"})
-  }
-});
-
-
-//LOGIN ROUTER
-router.post("/login", jsonParser, async(req, res)=>{
-  try{
-   const{email, password} = req.body
- const getEmail = await userSchema.findOne({email})
-
- if(!getEmail){
-  return res.status(400).json({message : `Email not found`})
- }
- const passwordC = await hashED.compare(password, getEmail.password)
-  if(!passwordC){ 
-   return res.status(400).json({message: "Invalid Password"})
-  }
-
-  const token = jwt.sign(
-    {id: getEmail._id}, 
-    process.env.JWT_SECRET,
-     {expiresIn: '1h'})
-
-  return res.status(200).json({token})
-  
-  
-}catch(err){
- return res.status(500).json({message: "Server Error"})
-}
-
-
-})
-
-//Middleware
-
-router.get("/cart", middlewareprotect, (req, res)=>{
-  res.send("this is working");
-});
-
-
-
-//ADD CATEGORY ROUTER
-router.post("/add", upload.single("image"), async (req, res) => {
+// SIGN UP
+router.post("/signup", async (req, res) => {
   try {
-    const { name } = req.body;
-    const image = req.file ? req.file.filename : null; // optional image
-
-    if (!name) {
-      return res.status(400).json({ message: "Missing name" });
-    }
-
-    const saveCat = await category.create({ 
-      name,
-      ImageUrl: image ? `uploads/${image}` : null
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const newUser = await userSchema.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword
     });
 
-    if (!saveCat) {
-      return res.status(400).json({ message: "Category not saved" });
-    }
-
-    res.status(200).json({ message: "Category saved successfully", data: saveCat });
+    if (!newUser) return res.status(400).json({ message: "Invalid input" });
+    res.status(200).json(newUser);
   } catch (err) {
-    res.status(500).json({ message: `Server error: ${err.message}` });
-  }
-});
-
-
-
-//GET CATEGORY ROUTER
-
-router.get("/categories", async (req, res) => {
-  try {
-    const catList = await category.find();
-    console.log(catList);
-
-    if (!catList || catList.length === 0) {
-      return res.status(404).json({ message: "No categories found" });
-    }
-
-    return res.status(200).json(catList);
-  } catch (err) {
-    return res.status(500).json({ message: `Server error: ${err.message}` });
-  }
-});
-
-
-// DELETE CATEGORY
-router.delete("/catdelete/:id", async (req, res) => {
-  try {
-    const { id } = req.params; // get the category ID from the URL
-
-    const deletedCategory = await category.findByIdAndDelete(id);
-
-    if (!deletedCategory) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-
-    res.status(200).json({
-      message: "Category deleted successfully",
-      deletedCategory,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-
-
-// Get products by category
-router.get("/product/category/:categoryName", async (req, res) => {
-  try {
-    const { categoryName } = req.params;
-    const products = await productDatabase.find({ category: categoryName });
-
-    if (products.length === 0) {
-      return res.status(404).json({ message: "No products found in this category" });
-    }
-
-    res.status(200).json(products);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-
-//ADD PRODUCT ROUTER
-router.post("/productpost", upload.single("image"), async (req, res) => {
-  try {
-    const { productname, description, price, category } = req.body;
-    const image = req.file ? req.file.filename : null;
-
-    if (!productname || !description || !price) {
-      return res.status(400).json({ 
-        message: "Missing required fields",
-        received: { productname, description, price, category }
-      });
-    }
-
-    if (!category) {
-      return res.status(400).json({ message: "Category is required" });
-    }
-
-    const addProduct = await productDatabase.create({
-      productname,
-      description,
-      price,
-      category,
-      imageUrl: image ? `uploads/${image}` : null
-    });
-
-    res.status(200).json(addProduct);
-  } catch (err) {
-    console.error("Error creating product:", err);
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
 
-
-
-//Delete PRODUCT
-router.delete("/product/:id", async (req, res) => {
+// LOGIN
+router.post("/login", async (req, res) => {
   try {
-    const { id } = req.params; 
-    const deletedProduct = await productDatabase.findByIdAndDelete(id);
-    console.log(deletedProduct)
+    const { email, password } = req.body;
+    const user = await userSchema.findOne({ email });
 
-    if (!deletedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!user) return res.status(400).json({ message: "Email not found" });
 
-    res.status(200).json({ message: "Product deleted successfully", deletedProduct });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(400).json({ message: "Invalid password" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    res.status(200).json({ token });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
 
+// Protected example route
+router.get("/cart", middlewareprotect, (req, res) => {
+  res.json({ message: "This route is protected and working" });
+});
 
+// =====================
+// CATEGORY ROUTES
+// =====================
 
+// ADD CATEGORY
+router.post("/add", upload.single("image"), async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ message: "Missing category name" });
 
-//GET PRODUCT ROUTER
-router.get("/productget", async(req, res)=>{
-  try{
-    const findProduct = await productDatabase.find().sort({ createdAt: -1 });
-    if(!findProduct){
-      return res.status(400).json({message: "No products found"})
+    const imageUrl = req.file ? req.file.path : null;
+    const newCategory = await category.create({ name, ImageUrl: imageUrl });
+
+    res.status(200).json({ message: "Category saved successfully", data: newCategory });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
-  return res.status(200).json(findProduct)
+});
 
+// GET ALL CATEGORIES
+router.get("/categories", async (req, res) => {
+  try {
+    const categories = await category.find();
+    if (!categories.length) return res.status(404).json({ message: "No categories found" });
+    res.status(200).json(categories);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
-  }catch(err){
-    return res.status(500).json({message: "Server Error"}) 
-  } 
+// DELETE CATEGORY
+router.delete("/catdelete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedCategory = await category.findByIdAndDelete(id);
+    if (!deletedCategory) return res.status(404).json({ message: "Category not found" });
 
+    res.status(200).json({ message: "Category deleted successfully", deletedCategory });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
-})
+// =====================
+// PRODUCT ROUTES
+// =====================
+
+// GET PRODUCTS BY CATEGORY
+router.get("/product/category/:categoryName", async (req, res) => {
+  try {
+    const { categoryName } = req.params;
+    const products = await productDatabase.find({ category: categoryName });
+    if (!products.length) return res.status(404).json({ message: "No products found in this category" });
+
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ADD PRODUCT
+router.post("/productpost", upload.single("image"), async (req, res) => {
+  try {
+    const { productname, description, price, category } = req.body;
+
+    if (!productname || !description || !price) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    if (!category) return res.status(400).json({ message: "Category is required" });
+
+    const imageUrl = req.file ? req.file.path : null;
+
+    const newProduct = await productDatabase.create({
+      productname,
+      description,
+      price,
+      category,
+      imageUrl
+    });
+
+    res.status(200).json(newProduct);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
+
+// DELETE PRODUCT
+router.delete("/product/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedProduct = await productDatabase.findByIdAndDelete(id);
+    if (!deletedProduct) return res.status(404).json({ message: "Product not found" });
+
+    res.status(200).json({ message: "Product deleted successfully", deletedProduct });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// GET ALL PRODUCTS
+router.get("/productget", async (req, res) => {
+  try {
+    const products = await productDatabase.find().sort({ createdAt: -1 });
+    if (!products.length) return res.status(404).json({ message: "No products found" });
+
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
 
 module.exports = router;

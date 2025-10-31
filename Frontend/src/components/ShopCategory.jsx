@@ -12,6 +12,15 @@ function ShopCategory(props) {
   const [loading, setLoading] = useState(true);
   const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+  // Helper function to get correct image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return "http://localhost:3000/static/media/banner_mens.e4aa52c32b71b7cfa22d.webp";
+    // If already full URL (Cloudinary), use as-is
+    if (imageUrl.startsWith('http')) return imageUrl;
+    // Otherwise, construct with API base URL (for old uploads)
+    return `${API_BASE_URL}/${imageUrl.replace(/\\/g, "/")}`;
+  };
+
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -53,20 +62,15 @@ function ShopCategory(props) {
         ) : products.length === 0 ? (
           <p>No products in this category</p>
         ) : (
-          products.map((prod) => {
-            const imageUrl = prod.imageUrl
-              ? `${API_BASE_URL}/${prod.imageUrl.replace(/\\/g, "/")}`
-              : "http://localhost:3000/static/media/banner_mens.e4aa52c32b71b7cfa22d.webp"; 
-            return (
-              <Item
-                key={prod._id}
-                id={prod._id}
-                name={prod.productname}
-                image={imageUrl}
-                new_price={prod.price}
-              />
-            );
-          })
+          products.map((prod) => (
+            <Item
+              key={prod._id}
+              id={prod._id}
+              name={prod.productname}
+              image={getImageUrl(prod.imageUrl)}
+              new_price={prod.price}
+            />
+          ))
         )}
       </div>
       <div className="shopcategory-loadmore">Explore More</div>

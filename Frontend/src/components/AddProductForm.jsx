@@ -8,15 +8,18 @@ function AddProduct() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null); // for preview
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:2000';
 
+  // Fetch categories
   useEffect(() => {
     async function fetchCategories() {
       try {
-      const response = await axios.get(`${API_BASE_URL}/categories`); 
+        const response = await axios.get(`${API_BASE_URL}/categories`);
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -25,103 +28,130 @@ function AddProduct() {
         setLoadingCategories(false);
       }
     }
-
     fetchCategories();
   }, [API_BASE_URL]);
 
-const productFn = async (e) => {
-  e.preventDefault();
+  // Handle form submission
+  const productFn = async (e) => {
+    e.preventDefault();
 
-  if (!productname || !description || !price || !categoryId) {
-    toast.error("Please fill all fields and select a category");
-    return;
-  }
+    if (!productname || !description || !price || !categoryId) {
+      toast.error("Please fill all fields and select a category");
+      return;
+    }
 
-  const formData = new FormData();
-  formData.append('productname', productname);
-  formData.append('description', description);
-  formData.append('price', price);
-  formData.append('category', categoryId);
-  if (image) formData.append('image', image);
+    const formData = new FormData();
+    formData.append('productname', productname);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('category', categoryId);
+    if (image) formData.append('image', image);
 
-  try {
-    const response = await axios.post(`${API_BASE_URL}/productpost`, formData);
-    toast.success("Product submitted successfully!");
-    // Reset form after successful submission
-    setProductname('');
-    setDescription('');
-    setPrice('');
-    setImage(null);
-    setCategoryId('');
-  } catch (err) {
-    console.error("Error submitting product:", err);
-    console.error("Error response:", err.response?.data);
-    toast.error(err.response?.data?.message || "Failed to submit product");
-  }
-};
+    try {
+      const response = await axios.post(`${API_BASE_URL}/productpost`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
+      toast.success("Product submitted successfully!");
+      
+      // Reset form
+      setProductname('');
+      setDescription('');
+      setPrice('');
+      setImage(null);
+      setImagePreview(null);
+      setCategoryId('');
+
+    } catch (err) {
+      console.error("Error submitting product:", err);
+      toast.error(err.response?.data?.message || "Failed to submit product");
+    }
+  };
+
+  // Handle image preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
 
   return (
-      <div className="loginsignup">
+    <div className="loginsignup">
       <div className="loginsignup-container">
         <h1>Add Product</h1>
-      <form onSubmit={productFn}>
-         <div className="loginsignup-fields">
-        <input
-          type="text"
-          name="productname"
-          value={productname}
-          placeholder="Add product name"
-          onChange={(e) => setProductname(e.target.value)}
-        />
+        <form onSubmit={productFn}>
+          <div className="loginsignup-fields">
+            <input
+              type="text"
+              name="productname"
+              value={productname}
+              placeholder="Add product name"
+              onChange={(e) => setProductname(e.target.value)}
+            />
 
-        <input
-          type="text"
-          name="description"
-          value={description}
-          placeholder="Product description"
-          onChange={(e) => setDescription(e.target.value)}
-        />
+            <input
+              type="text"
+              name="description"
+              value={description}
+              placeholder="Product description"
+              onChange={(e) => setDescription(e.target.value)}
+            />
 
-        <input
-          type="number"
-          name="price"
-          value={price}
-          placeholder="Add Price"
-          onChange={(e) => setPrice(e.target.value)}
-        />
+            <input
+              type="number"
+              name="price"
+              value={price}
+              placeholder="Add Price"
+              onChange={(e) => setPrice(e.target.value)}
+            />
 
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-        />
-</div>
-        <label htmlFor="category">Select Category:</label>
-        <select
-          name="category"
-          id="category"
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          required
-        >
-          <option value="">Select a category</option>
-          {loadingCategories ? (
-            <option disabled>Loading categories...</option>
-          ) : (
-            categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))
-          )}
-        </select>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
 
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-    
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{ width: '150px', height: '150px', marginTop: '10px', objectFit: 'cover' }}
+              />
+            )}
+          </div>
+
+          <label htmlFor="category">Select Category:</label>
+          <select
+            name="category"
+            id="category"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            required
+          >
+            <option value="">Select a category</option>
+            {loadingCategories ? (
+              <option disabled>Loading categories...</option>
+            ) : (
+              categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))
+            )}
+          </select>
+
+          <button type="submit">Submit</button>
+        </form>
+      </div>
     </div>
   );
 }

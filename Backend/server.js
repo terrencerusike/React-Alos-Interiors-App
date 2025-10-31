@@ -20,8 +20,8 @@ mongoose
   .catch((err) => console.log("❌ MongoDB connection error:", err));
 
 // Middlewares
-// Remove global body parsing - let routes handle it individually
-// (multer needs raw request stream for multipart/form-data)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 

@@ -13,6 +13,15 @@ const { products, loading, error } = useProducts();
 const { id } = useParams();
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+  // Helper function to get correct image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return "fallback.png";
+    // If already full URL (Cloudinary), use as-is
+    if (imageUrl.startsWith('http')) return imageUrl;
+    // Otherwise, construct with API base URL (for old uploads)
+    return `${API_BASE_URL}/${imageUrl.replace(/\\/g, "/")}`;
+  };
+
 
 
 
@@ -23,10 +32,10 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!product) return <p>Product not found</p>;
 
- // Build images array, always with full URLs
+ // Build images array
 const images = product.images && product.images.length > 0
-  ? product.images.map(img => `${API_BASE_URL}/${img.replace(/\\/g, "/")}`)
-  : [`${API_BASE_URL}/${(product.imageUrl || "fallback.png").replace(/\\/g, "/")}`];
+  ? product.images.map(img => getImageUrl(img))
+  : [getImageUrl(product.imageUrl)];
 
   return (
     <div className="productdisplay">
