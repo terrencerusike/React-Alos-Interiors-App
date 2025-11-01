@@ -1,0 +1,72 @@
+# Aloid Interiors
+
+Aloid Interiors is a modern furniture e-commerce website where users can browse furniture products and place orders. Users must sign up or log in to add items to their cart and view their cart. Admins can also add new products and categories using dedicated forms.
+
+---
+
+## Features
+
+- Browse furniture products
+- Add products to cart
+- View cart and place orders (requires authentication)
+- User authentication (signup/login)
+- Add new products via a product form (admin only)
+- Add new categories via a category form (admin only)
+- Responsive UI built with React
+
+---
+
+## Tech Stack
+
+- **Frontend:** React  
+- **Backend:** Node.js, Express  
+- **Database:** MongoDB  
+- **Authentication:** JWT-based login system
+
+---
+
+## Installation
+
+### Backend
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/terrencerusike/React-Alos-Interiors-App
+
+
+
+2--------Navigate to the backend folder:
+
+cd Backend
+
+
+3--------Install dependencies:
+
+npm install
+
+
+4-------Start the backend server:
+
+npm start
+
+
+The backend will run at: https://alos-interiors-web-backend.onrender.com/
+
+Frontend
+
+5---------Navigate to the frontend folder:
+
+cd Frontend
+
+
+6-------Install dependencies:
+
+npm install
+
+
+7------Start the frontend:
+
+npm start
+
+
+The frontend will run at: https://react-alos-interiors-app-1.onrender.com/
