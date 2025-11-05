@@ -159,23 +159,25 @@ router.get("/Shop/category/:categoryName", async (req, res) => {
 });
 
 // ADD PRODUCT
+// ADD PRODUCT - UPDATED TO ACCEPT IMAGE URL
 router.post("/productpost", upload.single("image"), async (req, res) => {
   try {
-    const { productname, description, price, category } = req.body;
+    const { productname, description, price, category, imageUrl } = req.body;
 
     // Validate required fields
     if (!productname || !description || !price || !category) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const imageUrl = req.file ? req.file.path : null;
+    // Use uploaded image OR provided imageUrl from request body
+    const finalImageUrl = req.file ? req.file.path : imageUrl;
 
-    
     const newProduct = await productDatabase.create({
       productname,
       description,
       price,
       category,
+      imageUrl: finalImageUrl  // Add this line to save the image URL
     });
 
     res.status(200).json({
