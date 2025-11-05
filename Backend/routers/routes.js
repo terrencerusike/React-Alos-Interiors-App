@@ -127,14 +127,33 @@ router.delete("/catdelete/:id", async (req, res) => {
 // =====================
 
 // GET PRODUCTS BY CATEGORY
-router.get("/product/category/:categoryName", async (req, res) => {
+router.get("/Shop/category/:categoryName", async (req, res) => {
   try {
     const { categoryName } = req.params;
-    const products = await productDatabase.find({ category: categoryName });
-    if (!products.length) return res.status(404).json({ message: "No products found in this category" });
+    console.log("🔍 Searching for category:", categoryName);
+
+    let products;
+
+    // Try to find by category name (string) first
+    products = await productDatabase.find({ category: categoryName });
+    console.log("📦 Products found by name:", products);
+
+    // If no products found by name, try by category ObjectId
+    if (!products.length) {
+      const categoryDoc = await category.findOne({ name: categoryName });
+      if (categoryDoc) {
+        products = await productDatabase.find({ category: categoryDoc._id });
+        console.log("📦 Products found by ID:", products);
+      }
+    }
+
+    if (!products.length) {
+      return res.status(404).json({ message: "No products found in this category" });
+    }
 
     res.status(200).json(products);
   } catch (err) {
+    console.error("🚨 Error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -144,27 +163,31 @@ router.post("/productpost", upload.single("image"), async (req, res) => {
   try {
     const { productname, description, price, category } = req.body;
 
-    if (!productname || !description || !price) {
+    // Validate required fields
+    if (!productname || !description || !price || !category) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    if (!category) return res.status(400).json({ message: "Category is required" });
-
     const imageUrl = req.file ? req.file.path : null;
 
+    
     const newProduct = await productDatabase.create({
       productname,
       description,
       price,
       category,
-      imageUrl
     });
 
-    res.status(200).json(newProduct);
+    res.status(200).json({
+      message: "✅ Product added successfully",
+      data: newProduct,
+    });
   } catch (err) {
+    console.error("Error creating product:", err);
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
+
 
 // DELETE PRODUCT
 router.delete("/product/:id", async (req, res) => {
