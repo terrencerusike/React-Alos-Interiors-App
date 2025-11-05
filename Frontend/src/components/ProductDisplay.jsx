@@ -84,13 +84,6 @@ const images = product.images && product.images.length > 0
 
         <button onClick={() => addToCart(product)}>Add to cart</button>
 
-        <button onClick={() => {
-  if(window.confirm("Are you sure you want to delete this product?")) {
-    deleteBn(product._id);
-  }
-}}>
-  Delete
-</button>
       </div>
     </div>
   );
