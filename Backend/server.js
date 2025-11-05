@@ -11,13 +11,17 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB connected successfully"))
-  .catch((err) => console.log("❌ MongoDB connection error:", err));
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000, // 30 seconds
+  socketTimeoutMS: 45000, // 45 seconds  
+  maxPoolSize: 10,
+  retryWrites: true,
+  w: 'majority'
+})
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.error('🚨 MongoDB connection error:', err));
 
 // Middlewares
 app.use(express.json());
