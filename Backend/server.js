@@ -14,8 +14,8 @@ if (process.env.NODE_ENV !== "production") {
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000, // 30 seconds
-  socketTimeoutMS: 45000, // 45 seconds  
+  serverSelectionTimeoutMS: 30000, 
+  socketTimeoutMS: 45000, 
   maxPoolSize: 10,
   retryWrites: true,
   w: 'majority'
@@ -28,9 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-
-
-// CORS configuration - PUT THIS IN YOUR MAIN SERVER FILE
+// CORS configuration 
 app.use(cors({
   origin: [
     "https://react-alos-interiors-app-1.onrender.com",
@@ -40,8 +38,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"]
 }));
-
-
 
 
 // Serve uploads folder
@@ -56,7 +52,6 @@ app.get("/", (req, res) => {
 });
 
 
-// Port for Render
 const PORT = process.env.PORT || 2000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

@@ -121,9 +121,6 @@ async function getProductsByCategory(categoryName, setProducts) {
   const getTotalCartItems = () =>
     cart.reduce((total, item) => total + item.quantity, 0);
 
-
-
-
   
   return (
     <ProductContext.Provider
@@ -145,7 +142,6 @@ async function getProductsByCategory(categoryName, setProducts) {
   );
 }
 
-// HOOKS
 export function useProducts() {
   return useContext(ProductContext);
 }
